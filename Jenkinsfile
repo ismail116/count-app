@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
     environment {
@@ -7,7 +6,6 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
 
-    
     stages {
         stage('Build Dockerfile') {
             steps {
@@ -17,47 +15,24 @@ pipeline {
                 }
             }
         }
-        // stage('Checkout') {
-        //     steps {
-        //         // Checkout the code from your version control system (e.g., Git)
-        //         git branch: 'main', url: 'https://github.com/ismail116/count-app.git'
-        //     }
-        // }
+
         stage('Push to ECR') {
             steps {
                 script {
-                    // Login to AWS ECR
-                    withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
-                                 string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')])
-                    // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']])
-                     // Use AWS CLI to get ECR login password
+                    // Use AWS CLI to get ECR login password
                     def awsPassword = sh(script: 'aws ecr get-login-password --region us-east-1', returnStdout: true).trim()
 
                     // Perform Docker login non-interactively
                     sh "echo '${awsPassword}' | docker login --username AWS --password-stdin 949609334280.dkr.ecr.us-east-1.amazonaws.com"
 
-                    // {
-                    //     sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 949609334280.dkr.ecr.us-east-1.amazonaws.com'
-                    // }
                     // Tag the image
-                    sh 'docker tag myapp:latest 949609334280.dkr.ecr.us-east-1.amazonaws.com/myapp:latest'
+                    sh 'docker tag myapp:latest 949609334280.dkr.ecr.us-east-1.amazonaws.com/my-ecr-repository:latest'  // Corrected tag
+
                     // Push the image to ECR
-                    sh 'docker push 949609334280.dkr.ecr.us-east-1.amazonaws.com/myapp:latest'
+                    sh 'docker push 949609334280.dkr.ecr.us-east-1.amazonaws.com/my-ecr-repository:latest'  // Corrected tag
                 }
             }
         }
-
-
-        // stage('Deploy to Kubernetes') {
-        //     steps {
-        //         script {
-        //             // Assuming you have kubectl configured on Jenkins
-        //             // Deploy the new image to Kubernetes pods
-        //             sh 'kubectl set image deployment/myapp-deployment myapp=949609334280.dkr.ecr.us-east-1.amazonaws.com/myapp:latest'
-        //         }
-        //     }
-        // }
-
     } //stages end
 
     post {
