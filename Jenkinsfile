@@ -30,9 +30,15 @@ pipeline {
                     withCredentials([string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY_ID'),
                                  string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')])
                     // withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'aws_credentials', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']])
-                    {
-                        sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 949609334280.dkr.ecr.us-east-1.amazonaws.com'
-                    }
+                     // Use AWS CLI to get ECR login password
+                    def awsPassword = sh(script: 'aws ecr get-login-password --region us-east-1', returnStdout: true).trim()
+
+                    // Perform Docker login non-interactively
+                    sh "echo '${awsPassword}' | docker login --username AWS --password-stdin 949609334280.dkr.ecr.us-east-1.amazonaws.com"
+
+                    // {
+                    //     sh 'aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 949609334280.dkr.ecr.us-east-1.amazonaws.com'
+                    // }
                     // Tag the image
                     sh 'docker tag myapp:latest 949609334280.dkr.ecr.us-east-1.amazonaws.com/myapp:latest'
                     // Push the image to ECR
