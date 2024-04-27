@@ -1,4 +1,7 @@
 
+
+
+#Count pipe line
 pipeline {
     agent any
     environment {
@@ -7,13 +10,6 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
 
-
-    stage('Checkout') {
-            steps {
-                // Checkout the code from your version control system (e.g., Git)
-                git branch: 'main', url: 'https://github.com/ismail116/count-app.git'
-            }
-      }
     
     stages {
         stage('Build Dockerfile') {
@@ -24,6 +20,12 @@ pipeline {
                 }
             }
         }
+        // stage('Checkout') {
+        //     steps {
+        //         // Checkout the code from your version control system (e.g., Git)
+        //         git branch: 'main', url: 'https://github.com/ismail116/count-app.git'
+        //     }
+        // }
         stage('Push to ECR') {
             steps {
                 script {
