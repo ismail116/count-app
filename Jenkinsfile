@@ -1,7 +1,4 @@
 
-
-
-#Count pipe line
 pipeline {
     agent any
     environment {
